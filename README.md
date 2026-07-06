@@ -1,6 +1,19 @@
-# Travel Planner
+# Waymark
 
-A responsive Travel Planner web app built with **Vite**, **React**, and **Tailwind CSS**. This scaffold supports the MVP scope defined in the project technical requirements (destination search, trips, itineraries, favorites, weather, budget, mock hotels, and share links).
+**Plan the journey. Mark the moments.**
+
+Waymark is a responsive travel planner built with **Vite**, **React**, **TypeScript**, and **Tailwind CSS**. Search destinations, check live weather, build a day-by-day itinerary, estimate your budget, and mock-book hotels — all in the browser with data saved locally.
+
+## Features
+
+| Tab | What it does |
+|-----|----------------|
+| **Explore** | Search and filter destinations by name, country, and category. Live weather via [Open-Meteo](https://open-meteo.com/). 5-day forecast panel. |
+| **Itinerary** | Add/remove activities per day (Day 1–5) with optional time and notes. Hotel bookings appear automatically. |
+| **Budget** | Adjust per-category estimates (Flights, Hotels, Food, Activities) with a live-updating bar chart. |
+| **Hotels** | Browse mock hotels per destination, pick check-in/check-out dates, book stays, and view reservations. |
+
+**Also included:** Waymark branding, skeleton loaders, scroll animations, `localStorage` persistence, and Vitest test coverage.
 
 ## Quick start
 
@@ -11,27 +24,34 @@ npm run dev
 
 Open the URL shown in the terminal (typically `http://localhost:5173`).
 
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Type-check and production build |
+| `npm run preview` | Preview production build |
+| `npm test` | Run tests once |
+| `npm run test:watch` | Run tests in watch mode |
+
 ## Project structure
 
 ```
-travel-planner/
-├── public/              # Static assets
-├── src/
-│   ├── components/      # Reusable UI components (buttons, cards, modals, etc.)
-│   ├── pages/           # Route-level page components
-│   ├── sections/        # Page sections (hero, itinerary panel, weather widget, etc.)
-│   ├── hooks/           # Custom React hooks
-│   ├── utils/           # Pure helpers (formatting, API clients, constants)
-│   ├── App.tsx          # Root component
-│   ├── main.tsx         # Entry point
-│   └── index.css        # Tailwind + design tokens
-├── index.html
-└── vite.config.ts
+src/
+├── components/      # UI components (cards, forms, charts, footer, etc.)
+├── pages/           # Tab views (Itinerary, Budget, Hotels, Home)
+├── sections/        # Composed sections (Explore hero + grid)
+├── context/         # TripContext — activities, reservations, budget
+├── hooks/           # useWeather, useScrollReveal, usePrefersReducedMotion
+├── utils/           # Formatting, filtering, storage, weather codes
+├── data/            # Mock destinations and hotels
+├── types/           # TypeScript interfaces
+└── index.css        # Tailwind + design tokens + animations
 ```
 
 ## Design system
 
-Tokens are defined as CSS variables in `src/index.css` and mapped to Tailwind utilities via `@theme`.
+Tokens are defined in `src/index.css` via Tailwind `@theme`.
 
 | Token | Value | Tailwind class |
 |-------|-------|----------------|
@@ -41,24 +61,19 @@ Tokens are defined as CSS variables in `src/index.css` and mapped to Tailwind ut
 | Secondary (rust clay) | `#B1502F` | `bg-rust`, `text-rust` |
 | Tertiary (teal) | `#3E6259` | `bg-teal`, `text-teal` |
 
-**Fonts**
+**Fonts:** Fraunces (display), DM Sans (body), IBM Plex Mono (labels/stats).
 
-| Role | Family | Tailwind class |
-|------|--------|----------------|
-| Display / headings | Fraunces | `font-display` |
-| Body | DM Sans | `font-body` (default on `body`) |
-| Labels / stats | IBM Plex Mono | `font-mono` |
+## Data persistence
 
-CSS variables are also available for non-Tailwind use: `--color-bg-ink`, `--color-surface-parchment`, `--color-accent-brass`, `--color-accent-rust`, `--color-accent-teal`.
+Trip data (itinerary, reservations, budget) is saved to `localStorage` under the key `waymark-app-state`. No backend required — refreshing the page keeps your plan.
 
-## Scripts
+## Tech notes
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build |
-| `npm run preview` | Preview production build |
+- **Weather:** Open-Meteo API (no key required)
+- **Images:** Unsplash CDN for destination and hotel photos
+- **Charts:** Recharts
+- **Testing:** Vitest + React Testing Library
 
-## Next steps
+## License
 
-Refer to `travel-planner-technical-doc.md` Section 6 for MVP feature scope. Build features into `components/`, compose them in `sections/`, and wire pages in `pages/` as routes are added.
+Demo project — no real bookings or payments.
