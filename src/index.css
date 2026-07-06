@@ -1,0 +1,382 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #152438;
+  --color-parchment: #f4eedd;
+  --color-brass: #c99a3d;
+  --color-rust: #b1502f;
+  --color-teal: #3e6259;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+:root {
+  --color-bg-ink: #152438;
+  --color-surface-parchment: #f4eedd;
+  --color-accent-brass: #c99a3d;
+  --color-accent-rust: #b1502f;
+  --color-accent-teal: #3e6259;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--font-body);
+  background-color: var(--color-bg-ink);
+  color: var(--color-surface-parchment);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes card-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-in {
+  animation: card-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes list-item-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
+.animate-list-out {
+  animation: list-item-out 0.2s ease-in forwards;
+}
+
+@keyframes booking-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-booking-overlay {
+  animation: booking-overlay-in 0.3s ease-out both;
+}
+
+.animate-check-pop {
+  animation: check-pop 0.35s ease-out both;
+}
+
+.animate-check-draw {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: check-draw 0.35s ease-out 0.1s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-card-in,
+  .animate-list-out,
+  .animate-booking-overlay,
+  .animate-check-pop,
+  .animate-check-draw,
+  .hero-reveal,
+  .hero-flight-path,
+  .hero-cta-glow,
+  .scroll-reveal,
+  .animate-logo-enter,
+  .animate-path-draw,
+  .animate-nav-enter,
+  .animate-tab-indicator,
+  .animate-page-in,
+  .animate-section-header,
+  .animate-total-bump,
+  .animate-float-slow,
+  .animate-float-medium,
+  .animate-float-fast,
+  .animate-chip-pop,
+  .skeleton-shimmer {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .animate-check-draw {
+    stroke-dashoffset: 0;
+  }
+
+  .hero-parallax-layer {
+    transform: none !important;
+  }
+}
+
+/* ── Hero load sequence ── */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-reveal {
+  opacity: 0;
+  animation: hero-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-reveal-delay-1 { animation-delay: 0.1s; }
+.hero-reveal-delay-2 { animation-delay: 0.25s; }
+.hero-reveal-delay-3 { animation-delay: 0.4s; }
+.hero-reveal-delay-4 { animation-delay: 0.55s; }
+
+@keyframes flight-dash {
+  from { stroke-dashoffset: 1200; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes flight-node-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.animate-flight-dash {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: flight-dash 2s ease-out 0.6s forwards;
+}
+
+.animate-flight-node {
+  transform-origin: center;
+  animation: flight-node-pulse 2.5s ease-in-out 1.4s infinite;
+}
+
+@keyframes cta-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(201, 154, 61, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 24px 6px rgba(201, 154, 61, 0.22);
+  }
+}
+
+.hero-cta-glow {
+  animation: cta-glow-pulse 3s ease-in-out 1.2s infinite;
+}
+
+/* ── Scroll-triggered card reveal ── */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Brand & navigation ── */
+@keyframes logo-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.85) rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-logo-enter {
+  animation: logo-enter 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes path-draw {
+  from { stroke-dashoffset: 40; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+.animate-path-draw {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: path-draw 1.4s ease-out 0.5s forwards;
+}
+
+@keyframes nav-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-nav-enter {
+  animation: nav-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tab-indicator {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.animate-tab-indicator {
+  animation: tab-indicator 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Page & section transitions ── */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-in {
+  animation: page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes section-header-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-section-header {
+  animation: section-header-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes total-bump {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.04); }
+}
+
+.animate-total-bump {
+  animation: total-bump 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Hero ambient float ── */
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0); opacity: 0.4; }
+  50% { transform: translate(6px, -10px); opacity: 0.7; }
+}
+
+@keyframes float-medium {
+  0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+  50% { transform: translate(-8px, 8px); opacity: 0.85; }
+}
+
+@keyframes float-fast {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  50% { transform: translate(4px, -6px); opacity: 0.6; }
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 5s ease-in-out 0.5s infinite;
+}
+
+.animate-float-fast {
+  animation: float-fast 4s ease-in-out 1s infinite;
+}
+
+/* ── Chip & filter interactions ── */
+@keyframes chip-pop {
+  from { transform: scale(0.92); }
+  to { transform: scale(1); }
+}
+
+.animate-chip-pop {
+  animation: chip-pop 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Skeleton loaders ── */
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-shimmer {
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.skeleton-ink {
+  background-image: linear-gradient(
+    90deg,
+    rgba(21, 36, 56, 0.35) 0%,
+    rgba(21, 36, 56, 0.55) 50%,
+    rgba(21, 36, 56, 0.35) 100%
+  );
+}
+
+.skeleton-parchment {
+  background-image: linear-gradient(
+    90deg,
+    rgba(244, 238, 221, 0.12) 0%,
+    rgba(244, 238, 221, 0.22) 50%,
+    rgba(244, 238, 221, 0.12) 100%
+  );
+}
+
+.skeleton-teal {
+  background-image: linear-gradient(
+    90deg,
+    rgba(62, 98, 89, 0.2) 0%,
+    rgba(62, 98, 89, 0.35) 50%,
+    rgba(62, 98, 89, 0.2) 100%
+  );
+}
