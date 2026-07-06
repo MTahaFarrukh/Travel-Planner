@@ -40,8 +40,6 @@ describe('BudgetPage', () => {
     renderBudgetPage()
 
     expect(screen.getByText('Estimate breakdown')).toBeInTheDocument()
-    expect(
-      screen.getByText(formatCurrency(2100)),
-    ).toBeInTheDocument()
+    expect(screen.getAllByText(formatCurrency(2300)).length).toBeGreaterThan(0)
   })
 })

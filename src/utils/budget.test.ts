@@ -4,16 +4,17 @@ import { calculateBudgetTotal } from './budget'
 
 describe('calculateBudgetTotal', () => {
   it('sums all category amounts', () => {
-    expect(calculateBudgetTotal(DEFAULT_BUDGET)).toBe(2100)
+    expect(calculateBudgetTotal(DEFAULT_BUDGET)).toBe(2300)
   })
 
   it('updates when any single category changes', () => {
     expect(
       calculateBudgetTotal({
-        flights: 0,
         hotels: 500,
         food: 200,
+        transport: 0,
         activities: 100,
+        shopping: 0,
       }),
     ).toBe(800)
   })
@@ -21,10 +22,11 @@ describe('calculateBudgetTotal', () => {
   it('returns zero for an empty budget', () => {
     expect(
       calculateBudgetTotal({
-        flights: 0,
         hotels: 0,
         food: 0,
+        transport: 0,
         activities: 0,
+        shopping: 0,
       }),
     ).toBe(0)
   })

@@ -1,4 +1,5 @@
 import BrandLogo from './BrandLogo'
+import ExportGuideButton from './ExportGuideButton'
 import { BRAND_TAGLINE } from '../constants/brand'
 import type { Tab } from './TabNav'
 import { focusRingOnInk } from '../utils/a11y'
@@ -13,6 +14,9 @@ const footerLinks: { id: Tab; label: string }[] = [
   { id: 'itinerary', label: 'Itinerary' },
   { id: 'budget', label: 'Budget' },
   { id: 'hotels', label: 'Hotels' },
+  { id: 'ai', label: 'AI Planner' },
+  { id: 'map', label: 'Map' },
+  { id: 'packing', label: 'Packing' },
 ]
 
 export default function Footer({ activeTab, onTabChange }: FooterProps) {
@@ -70,6 +74,8 @@ export default function Footer({ activeTab, onTabChange }: FooterProps) {
             </p>
           </div>
         </div>
+
+        <ExportGuideButton />
 
         <div className="mt-8 flex flex-col gap-2 border-t border-parchment/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-mono text-xs text-parchment/50">

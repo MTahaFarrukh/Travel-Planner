@@ -1,3 +1,5 @@
+import { focusRingOnInk } from '../utils/a11y'
+
 interface SearchInputProps {
   value: string
   onChange: (value: string) => void
@@ -32,7 +34,7 @@ export default function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-parchment/15 bg-ink/40 py-3 pl-11 pr-4 text-parchment placeholder:text-parchment/55 outline-none transition-[border-color,box-shadow] focus-visible:border-brass/60 focus-visible:ring-2 focus-visible:ring-brass/30"
+        className={`w-full rounded-xl border border-parchment/15 bg-ink/40 py-3 pl-11 pr-4 text-parchment placeholder:text-parchment/55 motion-safe:transition-[border-color,box-shadow] focus-visible:border-brass/60 ${focusRingOnInk}`}
       />
     </label>
   )

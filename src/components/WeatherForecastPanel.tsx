@@ -1,6 +1,7 @@
 import type { Destination } from '../types/destination'
 import { useWeather } from '../hooks/useWeather.js'
 import { focusRingOnInk } from '../utils/a11y'
+import ErrorAlert from './ErrorAlert'
 import Skeleton from './Skeleton'
 
 interface WeatherForecastPanelProps {
@@ -62,7 +63,7 @@ export default function WeatherForecastPanel({
       {loading && (
         <div className="mt-6 space-y-4" aria-live="polite">
           <Skeleton className="h-20 w-full" variant="parchment" rounded="xl" aria-label="Loading current weather" />
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton
                 key={i}
@@ -77,12 +78,12 @@ export default function WeatherForecastPanel({
       )}
 
       {error && !loading && (
-        <p
-          className="mt-6 rounded-xl border border-rust/40 bg-rust/15 px-4 py-3 font-mono text-sm text-rust"
-          role="alert"
-        >
-          {error}
-        </p>
+        <ErrorAlert
+          className="mt-6"
+          message={error}
+          onRetry={() => window.location.reload()}
+          retryLabel="Reload page"
+        />
       )}
 
       {data && !loading && !error && (

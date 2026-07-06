@@ -1,3 +1,6 @@
 export { usePrefersReducedMotion } from './usePrefersReducedMotion'
 export { useScrollReveal } from './useScrollReveal'
+export { useAiTripPlanner } from './useAiTripPlanner'
+export { useActiveDestination } from './useActiveDestination'
+export { useAiAssistant } from './useAiAssistant'
 export { useWeather } from './useWeather.js'

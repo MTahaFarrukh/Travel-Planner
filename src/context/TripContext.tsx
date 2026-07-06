@@ -13,16 +13,26 @@ import {
 } from '../types/budget'
 import type { BookingDateRange, Hotel, Reservation } from '../types/hotel'
 import type { Activity, NewActivity } from '../types/itinerary'
+import type { MapPlace } from '../types/map'
+import type { OptimizedDayRoute } from '../types/route'
 import { formatCurrency } from '../utils/formatCurrency'
 import { loadPersistedState, savePersistedState } from '../utils/storage'
+import { resolveDestination } from '../utils/resolveDestination'
 
 interface TripContextValue {
   activities: Activity[]
   reservations: Reservation[]
   budget: BudgetBreakdown
+  aiMapPlaces: MapPlace[]
+  aiTripDestination: string | null
+  activeDestinationId: string | null
   addActivity: (activity: NewActivity & { dayNumber: number }) => void
   removeActivity: (id: string) => void
+  applyDayRoute: (dayNumber: number, route: OptimizedDayRoute) => void
   setBudgetCategory: (category: BudgetCategory, value: number) => void
+  setAiItinerary: (places: MapPlace[], destination: string) => void
+  clearAiItinerary: () => void
+  setActiveDestinationId: (id: string) => void
   getBookingDateDefaults: () => BookingDateRange
   bookHotel: (
     hotel: Hotel,
@@ -61,10 +71,26 @@ export function TripProvider({ children }: { children: ReactNode }) {
   const [budget, setBudget] = useState<BudgetBreakdown>(
     () => loadPersistedState().budget,
   )
+  const [aiMapPlaces, setAiMapPlaces] = useState<MapPlace[]>(
+    () => loadPersistedState().aiMapPlaces,
+  )
+  const [aiTripDestination, setAiTripDestination] = useState<string | null>(
+    () => loadPersistedState().aiTripDestination,
+  )
+  const [activeDestinationId, setActiveDestinationIdState] = useState<
+    string | null
+  >(() => loadPersistedState().activeDestinationId)
 
   useEffect(() => {
-    savePersistedState({ activities, reservations, budget })
-  }, [activities, reservations, budget])
+    savePersistedState({
+      activities,
+      reservations,
+      budget,
+      aiMapPlaces,
+      aiTripDestination,
+      activeDestinationId,
+    })
+  }, [activities, reservations, budget, aiMapPlaces, aiTripDestination, activeDestinationId])
 
   const addActivity = useCallback(
     (activity: NewActivity & { dayNumber: number }) => {
@@ -80,12 +106,58 @@ export function TripProvider({ children }: { children: ReactNode }) {
     setActivities((prev) => prev.filter((a) => a.id !== id))
   }, [])
 
+  const applyDayRoute = useCallback(
+    (dayNumber: number, route: OptimizedDayRoute) => {
+      const orderMap = new Map(
+        route.stops.map((stop) => [stop.activityId, stop]),
+      )
+
+      setActivities((prev) => {
+        const dayItems = prev.filter((activity) => activity.dayNumber === dayNumber)
+        const otherDays = prev.filter((activity) => activity.dayNumber !== dayNumber)
+
+        const reordered: Activity[] = []
+        for (const stop of route.stops) {
+          const activity = dayItems.find((item) => item.id === stop.activityId)
+          if (!activity) continue
+          reordered.push({
+            ...activity,
+            time: stop.suggestedTime ?? activity.time,
+          })
+        }
+
+        const missing = dayItems.filter(
+          (activity) => !orderMap.has(activity.id),
+        )
+
+        return [...otherDays, ...reordered, ...missing]
+      })
+    },
+    [],
+  )
+
   const setBudgetCategory = useCallback(
     (category: BudgetCategory, value: number) => {
       setBudget((prev) => ({ ...prev, [category]: value }))
     },
     [],
   )
+
+  const setAiItinerary = useCallback((places: MapPlace[], destination: string) => {
+    setAiMapPlaces(places)
+    setAiTripDestination(destination)
+    const match = resolveDestination(destination)
+    if (match) setActiveDestinationIdState(match.id)
+  }, [])
+
+  const setActiveDestinationId = useCallback((id: string) => {
+    setActiveDestinationIdState(id)
+  }, [])
+
+  const clearAiItinerary = useCallback(() => {
+    setAiMapPlaces([])
+    setAiTripDestination(null)
+  }, [])
 
   const getBookingDateDefaults = useCallback((): BookingDateRange => {
     if (reservations.length > 0) {
@@ -160,9 +232,16 @@ export function TripProvider({ children }: { children: ReactNode }) {
       activities,
       reservations,
       budget,
+      aiMapPlaces,
+      aiTripDestination,
+      activeDestinationId,
       addActivity,
       removeActivity,
+      applyDayRoute,
       setBudgetCategory,
+      setAiItinerary,
+      clearAiItinerary,
+      setActiveDestinationId,
       getBookingDateDefaults,
       bookHotel,
       isHotelBooked,
@@ -171,9 +250,16 @@ export function TripProvider({ children }: { children: ReactNode }) {
       activities,
       reservations,
       budget,
+      aiMapPlaces,
+      aiTripDestination,
+      activeDestinationId,
       addActivity,
       removeActivity,
+      applyDayRoute,
       setBudgetCategory,
+      setAiItinerary,
+      clearAiItinerary,
+      setActiveDestinationId,
       getBookingDateDefaults,
       bookHotel,
       isHotelBooked,

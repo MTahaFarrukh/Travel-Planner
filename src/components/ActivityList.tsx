@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
 import type { Activity } from '../types/itinerary'
+import type { OptimizedDayRoute, RouteLeg } from '../types/route'
 import { focusRingOnParchment } from '../utils/a11y'
-import { sortActivitiesByTime } from '../utils/sortActivitiesByTime'
+import RouteLegCard from './itinerary/RouteLegCard'
+import EmptyState from './EmptyState'
 
 interface ActivityListProps {
   activities: Activity[]
   onRemove: (id: string) => void
+  route?: OptimizedDayRoute | null
 }
 
 function formatTime(time: string) {
@@ -21,10 +24,39 @@ function formatTime(time: string) {
 export default function ActivityList({
   activities,
   onRemove,
+  route = null,
 }: ActivityListProps) {
   const [exitingIds, setExitingIds] = useState<Set<string>>(new Set())
 
-  const sorted = useMemo(() => sortActivitiesByTime(activities), [activities])
+  const displayActivities = useMemo((): Activity[] => {
+    if (!route) return activities
+
+    const orderMap = new Map(
+      route.stops.map((stop) => [stop.activityId, stop]),
+    )
+    const ordered: Activity[] = []
+    for (const stop of route.stops) {
+      const activity = activities.find((item) => item.id === stop.activityId)
+      if (!activity) continue
+      ordered.push({
+        ...activity,
+        time: stop.suggestedTime ?? activity.time,
+      })
+    }
+
+    const missing = activities.filter((activity) => !orderMap.has(activity.id))
+    return [...ordered, ...missing]
+  }, [activities, route])
+
+  const legByToId = useMemo(() => {
+    if (!route) return new Map<string, RouteLeg>()
+    return new Map(route.legs.map((leg) => [leg.toStopId, leg]))
+  }, [route])
+
+  const stopMeta = useMemo(() => {
+    if (!route) return new Map<string, OptimizedDayRoute['stops'][number]>()
+    return new Map(route.stops.map((stop) => [stop.activityId, stop]))
+  }, [route])
 
   function handleRemove(id: string) {
     setExitingIds((prev) => new Set(prev).add(id))
@@ -38,31 +70,53 @@ export default function ActivityList({
     }, 200)
   }
 
-  if (sorted.length === 0) {
+  if (displayActivities.length === 0) {
     return (
-      <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-parchment/25 px-4 py-12 text-center sm:px-6">
-        <p className="font-display text-xl text-parchment">
-          Nothing planned yet
-        </p>
-        <p className="mt-2 max-w-xs text-sm text-parchment/75">
-          Add your first stop — a café, museum, hike, or lazy afternoon counts.
-        </p>
-      </div>
+      <EmptyState
+        title="Nothing planned yet"
+        description="Add your first stop — a café, museum, hike, or lazy afternoon counts."
+      />
     )
   }
 
   return (
     <ul className="space-y-3" aria-label="Day activities">
-      {sorted.map((activity, index) => {
+      {displayActivities.map((activity, index) => {
         const isExiting = exitingIds.has(activity.id)
+        const meta = stopMeta.get(activity.id)
+        const leg = legByToId.get(activity.id)
+        const prevActivity =
+          index > 0 ? displayActivities[index - 1] : undefined
 
         return (
-          <li
-            key={activity.id}
-            className={isExiting ? 'animate-list-out' : 'animate-card-in'}
-            style={isExiting ? undefined : { animationDelay: `${index * 50}ms` }}
-          >
-            <article className="group flex gap-3 rounded-2xl bg-parchment p-4 text-ink shadow-sm motion-safe:transition-shadow motion-safe:hover:shadow-md sm:gap-4">
+          <li key={activity.id}>
+            {leg && prevActivity && (
+              <div className="mb-3">
+                <RouteLegCard
+                  leg={leg}
+                  fromTitle={prevActivity.title}
+                  toTitle={activity.title}
+                  expanded
+                />
+              </div>
+            )}
+
+            <article
+              className={`group flex flex-col gap-3 rounded-2xl bg-parchment p-4 text-ink shadow-sm motion-safe:transition-shadow motion-safe:hover:shadow-md sm:flex-row sm:gap-4 ${
+                isExiting ? 'animate-list-out' : 'animate-card-in'
+              }`}
+              style={isExiting ? undefined : { animationDelay: `${index * 50}ms` }}
+            >
+              <div className="flex min-w-0 flex-1 gap-3 sm:gap-4">
+              {meta && (
+                <span
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-teal font-mono text-sm font-bold text-parchment"
+                  aria-label={`Route stop ${meta.order}`}
+                >
+                  {meta.order}
+                </span>
+              )}
+
               {activity.time ? (
                 <time
                   dateTime={activity.time}
@@ -89,6 +143,11 @@ export default function ActivityList({
                       Hotel stay
                     </span>
                   )}
+                  {meta && route && route.clusters > 1 && (
+                    <span className="rounded-full bg-teal/15 px-2 py-0.5 font-mono text-xs text-teal">
+                      Group {meta.clusterId + 1}
+                    </span>
+                  )}
                 </div>
                 {activity.notes && (
                   <p className="mt-1 text-sm leading-relaxed text-ink/75">
@@ -96,11 +155,12 @@ export default function ActivityList({
                   </p>
                 )}
               </div>
+              </div>
 
               <button
                 type="button"
                 onClick={() => handleRemove(activity.id)}
-                className={`shrink-0 self-start rounded-lg p-2 text-ink/50 transition-colors hover:bg-rust/10 hover:text-rust ${focusRingOnParchment}`}
+                className={`self-end rounded-lg p-2 text-ink/50 motion-safe:transition-colors hover:bg-rust/10 hover:text-rust sm:self-start ${focusRingOnParchment}`}
                 aria-label={`Remove ${activity.title}`}
               >
                 <svg

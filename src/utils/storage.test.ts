@@ -27,12 +27,31 @@ describe('parsePersistedState', () => {
         },
       ],
       budget: { flights: 500, hotels: 800, food: 200, activities: 100 },
+      aiMapPlaces: [
+        {
+          id: 'p1',
+          name: 'Temple',
+          description: 'Visit',
+          estimatedTime: 'Morning',
+          lat: 35,
+          lon: 135,
+        },
+      ],
+      aiTripDestination: 'Kyoto, Japan',
     }
 
     const result = parsePersistedState(JSON.stringify(payload))
     expect(result.activities).toHaveLength(1)
     expect(result.reservations).toHaveLength(1)
-    expect(result.budget).toEqual(payload.budget)
+    expect(result.budget).toEqual({
+      hotels: 800,
+      food: 200,
+      transport: 500,
+      activities: 100,
+      shopping: 0,
+    })
+    expect(result.aiMapPlaces).toHaveLength(1)
+    expect(result.aiTripDestination).toBe('Kyoto, Japan')
   })
 
   it('falls back to defaults for invalid JSON or version mismatch', () => {

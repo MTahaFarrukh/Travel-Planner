@@ -3,6 +3,7 @@ import { getHotelsForDestination } from '../data/hotels.js'
 import { useTrip } from '../context/TripContext'
 import type { Hotel } from '../types/hotel'
 import { focusRingOnInk } from '../utils/a11y'
+import EmptyState from './EmptyState'
 import HotelCard from './HotelCard'
 
 interface HotelListProps {
@@ -30,7 +31,7 @@ export default function HotelList({
   return (
     <div>
       <div
-        className="flex flex-wrap gap-2"
+        className="tab-nav-scroll flex flex-wrap gap-2 sm:flex-nowrap sm:overflow-x-auto"
         role="tablist"
         aria-label="Select destination"
       >
@@ -41,7 +42,7 @@ export default function HotelList({
             role="tab"
             aria-selected={selectedDestinationId === dest.id}
             onClick={() => onDestinationChange(dest.id)}
-            className={`rounded-full px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors duration-200 sm:px-4 ${focusRingOnInk} ${
+            className={`shrink-0 rounded-full px-3 py-2 font-mono text-xs uppercase tracking-wide motion-safe:transition-colors motion-safe:duration-200 sm:px-4 ${focusRingOnInk} ${
               selectedDestinationId === dest.id
                 ? 'bg-brass text-ink'
                 : 'border border-parchment/20 text-parchment/80 hover:border-brass/40 hover:text-parchment'
@@ -53,21 +54,26 @@ export default function HotelList({
       </div>
 
       {hotels.length === 0 ? (
-        <p className="mt-10 text-center font-mono text-sm text-parchment/70">
-          No hotels listed for this destination yet.
-        </p>
+        <EmptyState
+          className="mt-10"
+          title="No hotels listed yet"
+          description={`We're still curating stays for ${destination?.name ?? 'this destination'}. Try another destination or check back soon.`}
+          icon={
+            <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" />
+            </svg>
+          }
+        />
       ) : (
         <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {hotels.map((hotel, index) => (
-            <li key={hotel.id}>
-              <div style={{ animationDelay: `${index * 60}ms` }}>
-                <HotelCard
-                  hotel={hotel}
-                  isBooked={isHotelBooked(hotel.id)}
-                  defaultDateRange={getBookingDateDefaults()}
-                  onBook={handleBook}
-                />
-              </div>
+            <li key={hotel.id} className="motion-safe:animate-card-in" style={{ animationDelay: `${index * 60}ms` }}>
+              <HotelCard
+                hotel={hotel}
+                isBooked={isHotelBooked(hotel.id)}
+                defaultDateRange={getBookingDateDefaults()}
+                onBook={handleBook}
+              />
             </li>
           ))}
         </ul>

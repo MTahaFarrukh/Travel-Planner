@@ -1,5 +1,6 @@
 import { useTrip } from '../context/TripContext'
 import { formatCurrency } from '../utils/formatCurrency'
+import EmptyState from './EmptyState'
 
 function formatDate(dateStr: string) {
   return new Date(`${dateStr}T12:00:00`).toLocaleDateString(undefined, {
@@ -21,13 +22,15 @@ export default function ReservationsList() {
 
   if (reservations.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-parchment/25 px-4 py-10 text-center sm:px-6">
-        <p className="font-display text-xl text-parchment">No reservations yet</p>
-        <p className="mt-2 text-sm text-parchment/75">
-          Book a hotel above and it will appear here — plus on Day 1 of your
-          itinerary.
-        </p>
-      </div>
+      <EmptyState
+        title="No reservations yet"
+        description="Book a hotel above and it will appear here — plus on Day 1 of your itinerary."
+        icon={
+          <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6" />
+          </svg>
+        }
+      />
     )
   }
 

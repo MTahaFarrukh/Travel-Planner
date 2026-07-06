@@ -66,6 +66,82 @@ describe('TripContext itinerary logic', () => {
 
     expect(result.current.activities).toHaveLength(0)
   })
+
+  it('applies optimized route order and suggested times', () => {
+    vi.mocked(crypto.randomUUID)
+      .mockReset()
+      .mockReturnValueOnce('late-id')
+      .mockReturnValueOnce('early-id')
+
+    const { result } = renderHook(() => useTrip(), { wrapper })
+
+    act(() => {
+      result.current.addActivity({
+        dayNumber: 1,
+        title: 'Late stop',
+        time: '15:00',
+      })
+    })
+
+    act(() => {
+      result.current.addActivity({
+        dayNumber: 1,
+        title: 'Early stop',
+        time: '09:00',
+      })
+    })
+
+    const late = result.current.activities.find((a) => a.id === 'late-id')!
+    const early = result.current.activities.find((a) => a.id === 'early-id')!
+
+    act(() => {
+      result.current.applyDayRoute(1, {
+        dayNumber: 1,
+        stops: [
+          {
+            activityId: early.id,
+            title: early.title,
+            lat: 35,
+            lon: 135,
+            order: 1,
+            clusterId: 0,
+            visitDurationMin: 60,
+            suggestedTime: '09:15',
+          },
+          {
+            activityId: late.id,
+            title: late.title,
+            lat: 35.01,
+            lon: 135.01,
+            order: 2,
+            clusterId: 0,
+            visitDurationMin: 60,
+            suggestedTime: '10:30',
+          },
+        ],
+        legs: [],
+        clusters: 1,
+        totalDistanceKm: 1,
+        originalDistanceKm: 2,
+        savedDistanceKm: 1,
+        totalsByMode: {
+          walking: 120,
+          driving: 90,
+          metro: 100,
+          taxi: 95,
+        },
+        recommendedTotalMin: 90,
+      })
+    })
+
+    const dayOne = result.current.activities.filter(
+      (activity) => activity.dayNumber === 1,
+    )
+    expect(dayOne[0].title).toBe('Early stop')
+    expect(dayOne[0].time).toBe('09:15')
+    expect(dayOne[1].title).toBe('Late stop')
+    expect(dayOne[1].time).toBe('10:30')
+  })
 })
 
 describe('TripContext hotel booking flow', () => {
@@ -160,13 +236,13 @@ describe('TripContext hotel booking flow', () => {
         checkIn: '2026-07-20',
         checkOut: '2026-07-23',
       })
-      result.current.setBudgetCategory('flights', 750)
+      result.current.setBudgetCategory('transport', 750)
     })
 
     const { result: reloaded } = renderHook(() => useTrip(), { wrapper })
 
     expect(reloaded.current.activities).toHaveLength(2)
     expect(reloaded.current.reservations).toHaveLength(1)
-    expect(reloaded.current.budget.flights).toBe(750)
+    expect(reloaded.current.budget.transport).toBe(750)
   })
 })

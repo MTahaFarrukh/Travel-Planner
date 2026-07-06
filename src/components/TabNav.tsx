@@ -1,8 +1,9 @@
 import BrandLogo from './BrandLogo'
+import ThemeToggle from './ThemeToggle'
 import { BRAND_NAME } from '../constants/brand'
-import { focusRingOnInk } from '../utils/a11y'
+import { focusRingOnInk, tabId } from '../utils/a11y'
 
-type Tab = 'explore' | 'itinerary' | 'budget' | 'hotels'
+type Tab = 'explore' | 'itinerary' | 'budget' | 'hotels' | 'ai' | 'map' | 'packing'
 
 interface TabNavProps {
   activeTab: Tab
@@ -14,12 +15,15 @@ const tabs: { id: Tab; label: string }[] = [
   { id: 'itinerary', label: 'Itinerary' },
   { id: 'budget', label: 'Budget' },
   { id: 'hotels', label: 'Hotels' },
+  { id: 'ai', label: 'AI Planner' },
+  { id: 'map', label: 'Map' },
+  { id: 'packing', label: 'Packing' },
 ]
 
 export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-parchment/10 bg-ink/90 backdrop-blur-md motion-safe:animate-nav-enter">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 sm:gap-6 sm:px-6">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <button
           type="button"
           onClick={() => onTabChange('explore')}
@@ -30,15 +34,18 @@ export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
         </button>
 
         <nav
-          className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto"
+          className="tab-nav-scroll flex min-w-0 flex-1 gap-0.5 overflow-x-auto"
           aria-label="Main navigation"
+          role="tablist"
         >
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              id={tabId(tab.id)}
               type="button"
               role="tab"
               aria-selected={activeTab === tab.id}
+              aria-controls={`tabpanel-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
               className={`relative shrink-0 px-3 py-3 font-mono text-xs uppercase tracking-widest motion-safe:transition-colors motion-safe:duration-200 sm:px-4 sm:py-4 ${focusRingOnInk} ${
                 activeTab === tab.id
@@ -56,6 +63,8 @@ export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
             </button>
           ))}
         </nav>
+
+        <ThemeToggle />
       </div>
     </header>
   )

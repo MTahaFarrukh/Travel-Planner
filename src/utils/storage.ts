@@ -1,6 +1,7 @@
-import { DEFAULT_BUDGET, type BudgetBreakdown } from '../types/budget'
+import { DEFAULT_BUDGET, migrateBudgetBreakdown, type BudgetBreakdown } from '../types/budget'
 import type { Reservation } from '../types/hotel'
 import type { Activity } from '../types/itinerary'
+import type { MapPlace } from '../types/map'
 
 export const STORAGE_KEY = 'waymark-app-state'
 export const STORAGE_VERSION = 1
@@ -10,6 +11,9 @@ export interface PersistedAppState {
   activities: Activity[]
   reservations: Reservation[]
   budget: BudgetBreakdown
+  aiMapPlaces: MapPlace[]
+  aiTripDestination: string | null
+  activeDestinationId: string | null
 }
 
 export const DEFAULT_APP_STATE: PersistedAppState = {
@@ -17,16 +21,20 @@ export const DEFAULT_APP_STATE: PersistedAppState = {
   activities: [],
   reservations: [],
   budget: DEFAULT_BUDGET,
+  aiMapPlaces: [],
+  aiTripDestination: null,
+  activeDestinationId: null,
 }
 
 function isBudgetBreakdown(value: unknown): value is BudgetBreakdown {
   if (!value || typeof value !== 'object') return false
   const budget = value as Record<string, unknown>
   return (
-    typeof budget.flights === 'number' &&
     typeof budget.hotels === 'number' &&
     typeof budget.food === 'number' &&
-    typeof budget.activities === 'number'
+    typeof budget.transport === 'number' &&
+    typeof budget.activities === 'number' &&
+    typeof budget.shopping === 'number'
   )
 }
 
@@ -37,6 +45,19 @@ function isActivity(value: unknown): value is Activity {
     typeof activity.id === 'string' &&
     typeof activity.dayNumber === 'number' &&
     typeof activity.title === 'string'
+  )
+}
+
+function isMapPlace(value: unknown): value is MapPlace {
+  if (!value || typeof value !== 'object') return false
+  const place = value as Record<string, unknown>
+  return (
+    typeof place.id === 'string' &&
+    typeof place.name === 'string' &&
+    typeof place.description === 'string' &&
+    typeof place.estimatedTime === 'string' &&
+    typeof place.lat === 'number' &&
+    typeof place.lon === 'number'
   )
 }
 
@@ -66,9 +87,28 @@ export function parsePersistedState(raw: string | null): PersistedAppState {
       : []
     const budget = isBudgetBreakdown(parsed.budget)
       ? parsed.budget
-      : DEFAULT_BUDGET
+      : migrateBudgetBreakdown(parsed.budget)
+    const aiMapPlaces = Array.isArray(parsed.aiMapPlaces)
+      ? parsed.aiMapPlaces.filter(isMapPlace)
+      : []
+    const aiTripDestination =
+      typeof parsed.aiTripDestination === 'string'
+        ? parsed.aiTripDestination
+        : null
+    const activeDestinationId =
+      typeof parsed.activeDestinationId === 'string'
+        ? parsed.activeDestinationId
+        : null
 
-    return { version: STORAGE_VERSION, activities, reservations, budget }
+    return {
+      version: STORAGE_VERSION,
+      activities,
+      reservations,
+      budget,
+      aiMapPlaces,
+      aiTripDestination,
+      activeDestinationId,
+    }
   } catch {
     return DEFAULT_APP_STATE
   }

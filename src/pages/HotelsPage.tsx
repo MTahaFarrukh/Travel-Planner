@@ -1,13 +1,10 @@
-import { useState } from 'react'
 import HotelList from '../components/HotelList'
 import ReservationsList from '../components/ReservationsList'
-import { destinations } from '../data/destinations.js'
+import { useActiveDestination } from '../hooks/useActiveDestination'
 import { pageHeading, pageSection } from '../utils/a11y'
 
 export default function HotelsPage() {
-  const [selectedDestinationId, setSelectedDestinationId] = useState(
-    destinations[0].id,
-  )
+  const { destination, setActiveDestinationId } = useActiveDestination()
 
   return (
     <section className={pageSection}>
@@ -25,8 +22,8 @@ export default function HotelsPage() {
       </header>
 
       <HotelList
-        selectedDestinationId={selectedDestinationId}
-        onDestinationChange={setSelectedDestinationId}
+        selectedDestinationId={destination.id}
+        onDestinationChange={setActiveDestinationId}
       />
 
       <div className="mt-10 sm:mt-14">

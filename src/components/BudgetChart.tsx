@@ -9,6 +9,7 @@ import {
   YAxis,
 } from 'recharts'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import type { BudgetBreakdown } from '../types/budget'
 import { BUDGET_CATEGORIES } from '../types/budget'
 import { formatCurrency } from '../utils/formatCurrency'
@@ -48,6 +49,7 @@ function CustomTooltip({
 
 export default function BudgetChart({ budget }: BudgetChartProps) {
   const reducedMotion = usePrefersReducedMotion()
+  const compact = useMediaQuery('(max-width: 640px)')
   const [chartReady, setChartReady] = useState(false)
 
   useEffect(() => {
@@ -91,11 +93,11 @@ export default function BudgetChart({ budget }: BudgetChartProps) {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#152438', fontSize: 11, fontFamily: 'IBM Plex Mono' }}
+              tick={{ fill: '#152438', fontSize: compact ? 10 : 11, fontFamily: 'IBM Plex Mono' }}
               interval={0}
-              angle={-20}
+              angle={compact ? -35 : -20}
               textAnchor="end"
-              height={48}
+              height={compact ? 56 : 48}
             />
             <YAxis
               axisLine={false}

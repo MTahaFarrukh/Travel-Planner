@@ -22,6 +22,24 @@
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+}
+
+[data-theme='midnight'] {
+  --color-bg-ink: #0a121f;
+  --color-ink: #0a121f;
+}
+
+[data-theme='midnight'] body {
+  background-color: #0a121f;
+}
+
+[data-theme='midnight'] .trip-map-shell .leaflet-container {
+  background: #060d16;
 }
 
 body {
@@ -32,6 +50,17 @@ body {
   color: var(--color-surface-parchment);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--duration-normal) var(--ease-out-expo);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-brass);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
 }
 
 @keyframes card-fade-in {
@@ -128,6 +157,7 @@ body {
   .animate-float-medium,
   .animate-float-fast,
   .animate-chip-pop,
+  .animate-fade-in,
   .skeleton-shimmer {
     animation: none !important;
     opacity: 1 !important;
@@ -180,6 +210,16 @@ body {
   stroke-dasharray: 1200;
   stroke-dashoffset: 1200;
   animation: flight-dash 2s ease-out 0.6s forwards;
+}
+
+@keyframes flight-draw {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-flight-draw {
+  opacity: 0;
+  animation: flight-draw 1.2s ease-out 0.2s forwards;
 }
 
 .animate-flight-node {
@@ -343,6 +383,43 @@ body {
   animation: chip-pop 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s var(--ease-out-expo) both;
+}
+
+/* ── Tab nav scroll hint ── */
+.tab-nav-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12px,
+    #000 calc(100% - 24px),
+    transparent
+  );
+}
+
+.tab-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Scrollable content fade ── */
+.scroll-fade-y {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 12px,
+    #000 calc(100% - 16px),
+    transparent
+  );
+}
+
 /* ── Skeleton loaders ── */
 @keyframes skeleton-shimmer {
   0% { background-position: 200% 0; }
@@ -379,4 +456,118 @@ body {
     rgba(62, 98, 89, 0.35) 50%,
     rgba(62, 98, 89, 0.2) 100%
   );
+}
+
+/* ── Leaflet map (Waymark theme) ── */
+.trip-map-shell .leaflet-container {
+  background: #152438;
+  font-family: var(--font-body);
+}
+
+.waymark-marker {
+  background: transparent;
+  border: none;
+}
+
+.waymark-marker-pin {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  background: linear-gradient(145deg, #c99a3d, #b1502f);
+  border: 2px solid #f4eedd;
+  box-shadow: 0 4px 14px rgba(21, 36, 56, 0.45);
+  transform: rotate(-45deg);
+}
+
+.waymark-marker-pin::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: #f4eedd;
+}
+
+.waymark-destination-marker {
+  background: transparent;
+  border: none;
+}
+
+.waymark-destination-pin {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e8c56a, #c99a3d 55%, #b1502f);
+  border: 3px solid #f4eedd;
+  box-shadow: 0 4px 16px rgba(21, 36, 56, 0.5);
+}
+
+.waymark-attraction-marker {
+  background: transparent;
+  border: none;
+}
+
+.waymark-attraction-pin {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #2a9d8f;
+  border: 2px solid #f4eedd;
+  box-shadow: 0 2px 8px rgba(21, 36, 56, 0.4);
+}
+
+.waymark-route-stop-marker {
+  background: transparent;
+  border: none;
+}
+
+.waymark-route-stop-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2a9d8f, #3e6259);
+  border: 2px solid #f4eedd;
+  box-shadow: 0 4px 12px rgba(21, 36, 56, 0.45);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: #f4eedd;
+  line-height: 1;
+}
+
+.leaflet-popup-content-wrapper.waymark-popup,
+.waymark-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  background: #f4eedd;
+  box-shadow: 0 12px 32px rgba(21, 36, 56, 0.28);
+}
+
+.waymark-popup .leaflet-popup-content {
+  margin: 12px 14px;
+  min-width: 180px;
+  max-width: 260px;
+}
+
+.waymark-popup .leaflet-popup-tip {
+  background: #f4eedd;
+}
+
+@media (max-width: 640px) {
+  .trip-map-shell {
+    min-height: 280px;
+  }
+
+  .waymark-popup .leaflet-popup-content {
+    max-width: 220px;
+  }
 }
